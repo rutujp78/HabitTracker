@@ -33,12 +33,14 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
 
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         // Check if user exist or not
-        const user = await User.findOne({username: username});
-        console.log(user);
-        if(!user) return res.status(404).json({message: "User not found"});
+        const user = await User.findOne({email: email});
+        if(!user) {
+            // console.log("first")
+            return res.status(404).json({message: "User not found"});
+        }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
@@ -49,7 +51,6 @@ router.post("/login", async (req, res) => {
         const token = jwt.sign({username: user.username}, process.env.JWT_SECRET);
         
         delete user.password;
-        
         res.status(200).json({token, user});
 
     } catch (error) {
